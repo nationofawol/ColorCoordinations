@@ -13,14 +13,13 @@
       google.charts.load('current', {'packages':['corechart']});
       google.charts.setOnLoadCallback(fetchData);
 
-      let groupedData = {}; // { Week -> { Color -> sumPoints } }
+      let groupedData = {};
 
-      // Map your color names to actual colors
       const colorMap = {
         "White": "#ffffff",
         "Black": "#000000",
         "Pink": "#FF69B4",
-        "Tan": "D6B588",
+        "Tan": "#D6B588",
         "Blue": "#007bff",
         "Green": "#28a745",
         "Gray": "#6c757d",
@@ -29,7 +28,6 @@
         "Orange": "#fd7e14",
         "Purple": "#E6E6FA",
         "Brown": "#964B00",
-        // add more colors as needed
       };
 
       function fetchData() {
@@ -41,7 +39,7 @@
           complete: function(results) {
             const rows = results.data;
 
-            groupedData = {}; // reset
+            groupedData = {};
 
             rows.forEach(row => {
               const week = (row.Week || "").trim();
@@ -78,57 +76,34 @@
       }
 
       function drawChart(selectedWeek) {
-  const weekData = groupedData[selectedWeek];
-  if (!weekData) return;
+        const weekData = groupedData[selectedWeek];
+        if (!weekData) return;
 
-  const data = new google.visualization.DataTable();
-  data.addColumn('string', 'Color');
-  data.addColumn('number', 'Points');
-
-  const chartColors = [];
-  const slices = {};
-
-  Object.keys(weekData).forEach((color, index) => {
-    const points = weekData[color];
-    data.addRow([color, points]);
-
-    // Set slice color
-    const fillColor = colorMap[color] || "#888888";
-    chartColors.push(fillColor);
-
-    // Special case: white slice needs black text
-    if (color.toLowerCase() === "white") {
-      slices[index] = { textStyle: { color: '#000000' } };
-    }
-  });
-
-  const options = {
-    title: `Colors Worn – ${selectedWeek}`,
-    pieHole: 0.4,
-    legend: { position: 'right' },
-    colors: chartColors,
-    slices: slices
-  };
-
-  const chart = new google.visualization.PieChart(document.getElementById('piechart'));
-  chart.draw(data, options);
-}
+        const data = new google.visualization.DataTable();
+        data.addColumn('string', 'Color');
+        data.addColumn('number', 'Points');
 
         const chartColors = [];
+        const slices = {};
 
-        Object.keys(weekData).forEach(color => {
+        Object.keys(weekData).forEach((color, index) => {
           const points = weekData[color];
           data.addRow([color, points]);
 
-          // pick mapped color or default if not in map
-          chartColors.push(colorMap[color] || "#888888");
+          const fillColor = colorMap[color] || "#888888";
+          chartColors.push(fillColor);
+
+          if (color.toLowerCase() === "white") {
+            slices[index] = { textStyle: { color: '#000000' } };
+          }
         });
 
         const options = {
           title: `Colors Worn – ${selectedWeek}`,
           pieHole: 0.4,
           legend: { position: 'right' },
-          colors: chartColors
+          colors: chartColors,
+          slices: slices
         };
 
         const chart = new google.visualization.PieChart(document.getElementById('piechart'));
