@@ -1,123 +1,139 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <title>Weekly Color Charts</title>
+<head>
+  <meta charset="UTF-8">
+  <title>Weekly Color Charts</title>
 
-    <!-- Google Charts -->
-    <script src="https://www.gstatic.com/charts/loader.js"></script>
-    <!-- Papa Parse -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  <!-- Google Charts -->
+  <script src="https://www.gstatic.com/charts/loader.js"></script>
+  <!-- Papa Parse -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 
-    <script>
-      google.charts.load('current', {'packages':['corechart']});
-      google.charts.setOnLoadCallback(fetchData);
+  <script>
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(fetchData);
 
-      let groupedData = {};
+    let groupedData = {}; // { Week -> { Color -> sumPoints } }
 
-      const colorMap = {
-        "White": "#ffffff",
-        "Black": "#000000",
-        "Pink": "#FF69B4",
-        "Tan": "#D6B588",
-        "Blue": "#007bff",
-        "Green": "#28a745",
-        "Gray": "#6c757d",
-        "Red": "#dc3545",
-        "Yellow": "#ffc107",
-        "Orange": "#fd7e14",
-        "Purple": "#E6E6FA",
-        "Brown": "#964B00",
+    // Map your color names to actual colors
+    const colorMap = {
+      "White": "#ffffff",
+      "Black": "#000000",
+      "Pink": "#FF69B4",
+      "Tan": "#D6B588",
+      "Blue": "#007bff",
+      "Green": "#28a745",
+      "Gray": "#6c757d",
+      "Red": "#dc3545",
+      "Yellow": "#ffc107",
+      "Orange": "#fd7e14",
+      "Purple": "#E6E6FA",
+      "Brown": "#964B00",
+    };
+
+    function fetchData() {
+      const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqnTcuo72ApWjIBwtCm9SUTlRnzgTbBzU7u3hALw7idVOuZDHbtvHWSdxy-dZMpNIMKYkxUMfokgPF/pub?gid=1036373024&single=true&output=csv";
+
+      console.log("Fetching CSV from Google Sheets...");
+
+      Papa.parse(csvUrl, {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: function(results) {
+          console.log("CSV loaded:", results.data);
+
+          groupedData = {};
+
+          results.data.forEach(row => {
+            const week = (row.Week || "").trim();
+            const color = (row.Color || "").trim();
+            const points = Number(row.Points || 0);
+
+            if (!week || !color || points === 0) return;
+
+            if (!groupedData[week]) groupedData[week] = {};
+            if (!groupedData[week][color]) groupedData[week][color] = 0;
+
+            groupedData[week][color] += points;
+          });
+
+          console.log("Grouped data:", groupedData);
+          populateDropdown();
+        },
+        error: function(err) {
+          console.error("CSV parsing error:", err);
+        }
+      });
+    }
+
+    function populateDropdown() {
+      const select = document.getElementById('weekSelect');
+      select.innerHTML = "";
+
+      Object.keys(groupedData).forEach(week => {
+        const option = document.createElement('option');
+        option.value = week;
+        option.textContent = week;
+        select.appendChild(option);
+      });
+
+      if (select.options.length > 0) {
+        drawChart(select.value);
+        select.value = Object.keys(groupedData).pop(); // default to latest week
+      }
+
+      select.addEventListener('change', () => drawChart(select.value));
+    }
+
+    function drawChart(selectedWeek) {
+      const weekData = groupedData[selectedWeek];
+      if (!weekData) {
+        console.warn("No data for week:", selectedWeek);
+        return;
+      }
+
+      const data = new google.visualization.DataTable();
+      data.addColumn('string', 'Color');
+      data.addColumn('number', 'Points');
+
+      const chartColors = [];
+      const slices = {};
+
+      Object.keys(weekData).forEach((color, index) => {
+        const points = weekData[color];
+        data.addRow([color, points]);
+
+        const fillColor = colorMap[color] || "#888888";
+        chartColors.push(fillColor);
+
+        if (color.toLowerCase() === "white") {
+          slices[index] = { textStyle: { color: '#000000' } };
+        }
+      });
+
+      console.log("Drawing chart for week:", selectedWeek);
+
+      const options = {
+        title: `Colors Worn – ${selectedWeek}`,
+        pieHole: 0.4,
+        legend: { position: 'right' },
+        colors: chartColors,
+        slices: slices
       };
 
-      function fetchData() {
-        const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqnTcuo72ApWjIBwtCm9SUTlRnzgTbBzU7u3hALw7idVOuZDHbtvHWSdxy-dZMpNIMKYkxUMfokgPF/pub?gid=1036373024&single=true&output=csv";
+      const chart = new google.visualization.PieChart(document.getElementById('piechart'));
+      chart.draw(data, options);
+    }
+  </script>
+</head>
 
-        Papa.parse(csvUrl, {
-          download: true,
-          header: true,
-          complete: function(results) {
-            const rows = results.data;
+<body>
+  <h2>Weekly Color Breakdown</h2>
 
-            groupedData = {};
+  <label for="weekSelect">Select Week:</label>
+  <select id="weekSelect"></select>
 
-            rows.forEach(row => {
-              const week = (row.Week || "").trim();
-              const color = (row.Color || "").trim();
-              const points = Number(row.Points || 0);
-
-              if (!week || !color || points === 0) return;
-
-              if (!groupedData[week]) groupedData[week] = {};
-              if (!groupedData[week][color]) groupedData[week][color] = 0;
-
-              groupedData[week][color] += points;
-            });
-
-            populateDropdown();
-          }
-        });
-      }
-
-      function populateDropdown() {
-        const select = document.getElementById('weekSelect');
-        select.innerHTML = "";
-
-        Object.keys(groupedData).forEach(week => {
-          const option = document.createElement('option');
-          option.value = week;
-          option.textContent = week;
-          select.appendChild(option);
-        });
-
-        if (select.options.length > 0) drawChart(select.value);
-
-        select.addEventListener('change', () => drawChart(select.value));
-      }
-
-      function drawChart(selectedWeek) {
-        const weekData = groupedData[selectedWeek];
-        if (!weekData) return;
-
-        const data = new google.visualization.DataTable();
-        data.addColumn('string', 'Color');
-        data.addColumn('number', 'Points');
-
-        const chartColors = [];
-        const slices = {};
-
-        Object.keys(weekData).forEach((color, index) => {
-          const points = weekData[color];
-          data.addRow([color, points]);
-
-          const fillColor = colorMap[color] || "#888888";
-          chartColors.push(fillColor);
-
-          if (color.toLowerCase() === "white") {
-            slices[index] = { textStyle: { color: '#000000' } };
-          }
-        });
-
-        const options = {
-          title: `Colors Worn – ${selectedWeek}`,
-          pieHole: 0.4,
-          legend: { position: 'right' },
-          colors: chartColors,
-          slices: slices
-        };
-
-        const chart = new google.visualization.PieChart(document.getElementById('piechart'));
-        chart.draw(data, options);
-      }
-    </script>
-  </head>
-
-  <body>
-    <h2>Weekly Color Breakdown</h2>
-
-    <label for="weekSelect">Select Week:</label>
-    <select id="weekSelect"></select>
-
-    <div id="piechart" style="width: 700px; height: 500px;"></div>
-  </body>
+  <div id="piechart" style="width: 700px; height: 500px;"></div>
+</body>
 </html>
