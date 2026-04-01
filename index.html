@@ -1,51 +1,49 @@
 <!DOCTYPE html>
-
 <html>
   <head>
     <meta charset="UTF-8">
     <title>Weekly Color Chart</title>
 
-```
-<!-- Google Charts -->
-<script src="https://www.gstatic.com/charts/loader.js"></script>
+    <!-- Google Charts -->
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
 
-<script>
-  google.charts.load('current', {'packages':['corechart']});
-  google.charts.setOnLoadCallback(drawChart);
+    <script>
+      google.charts.load('current', {'packages':['corechart']});
+      google.charts.setOnLoadCallback(drawChart);
 
-  function drawChart() {
-    var query = new google.visualization.Query(
-      "https://docs.google.com/spreadsheets/d/10_W6nd2lukn-dJG3wrzY7TQiS5GfC-37tpRwhSYUJ3E/gviz/tq?gid=1808384245"
-    );
+      function drawChart() {
+        // Replace with your working gviz/tq link
+        var query = new google.visualization.Query(
+          "https://docs.google.com/spreadsheets/d/10_W6nd2lukn-dJG3wrzY7TQiS5GfC-37tpRwhSYUJ3E/gviz/tq?gid=1808384245&tq=select A,B where C='Week 3/30/26'"
+        );
 
-    query.send(function(response) {
-      if (response.isError()) {
-        console.error(response.getMessage());
-        return;
+        query.send(function(response) {
+          if (response.isError()) {
+            console.error(response.getMessage());
+            return;
+          }
+
+          var data = response.getDataTable();
+
+          var options = {
+            title: 'Colors Worn – Week 3/30/26',
+            pieHole: 0.4,
+            legend: { position: 'right' },
+            colors: ['white','black','blue','green','gray'] // match your actual clothing colors
+          };
+
+          var chart = new google.visualization.PieChart(
+            document.getElementById('piechart')
+          );
+
+          chart.draw(data, options);
+        });
       }
-
-      var data = response.getDataTable();
-
-      var options = {
-        title: 'Colors Worn This Week',
-        pieHole: 0.4,
-        legend: { position: 'right' }
-      };
-
-      var chart = new google.visualization.PieChart(
-        document.getElementById('piechart')
-      );
-
-      chart.draw(data, options);
-    });
-  }
-</script>
-```
-
+    </script>
   </head>
 
   <body>
-    <h2>Weekly Color Breakdown</h2>
+    <h2>Weekly Color Breakdown – Week 3/30/26</h2>
     <div id="piechart" style="width: 700px; height: 500px;"></div>
   </body>
 </html>
