@@ -6,7 +6,7 @@
 
     <!-- Load Google Charts -->
     <script src="https://www.gstatic.com/charts/loader.js"></script>
-    <!-- Load Papa Parse (CSV parser) -->
+    <!-- Load Papa Parse -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 
     <script>
@@ -14,7 +14,6 @@
       google.charts.setOnLoadCallback(fetchAndDraw);
 
       function fetchAndDraw() {
-        // URL of your published CSV
         const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqnTcuo72ApWjIBwtCm9SUTlRnzgTbBzU7u3hALw7idVOuZDHbtvHWSdxy-dZMpNIMKYkxUMfokgPF/pub?gid=1036373024&single=true&output=csv";
 
         Papa.parse(csvUrl, {
@@ -23,19 +22,20 @@
           complete: function(results) {
             const rows = results.data;
 
-            // Build DataTable
             const data = new google.visualization.DataTable();
-            data.addColumn('string', 'Color');
-            data.addColumn('number', 'Points');
+            data.addColumn('string', 'Color');  // labels
+            data.addColumn('number', 'Points'); // values
 
-            // Insert only rows where Week is “Week 3/30/26”
+            // Add rows only for Week 3/30/26
             rows.forEach(row => {
-              if (row.Week === "Week 3/30/26") {
-                data.addRow([row.Color, Number(row.Points)]);
+              const color = (row.Color || "").trim(); // force string
+              const points = Number(row.Points || 0);
+
+              if (row.Week === "Week 3/30/26" && color) {
+                data.addRow([color, points]);
               }
             });
 
-            // Draw chart
             const options = {
               title: 'Colors Worn – Week 3/30/26',
               pieHole: 0.4,
