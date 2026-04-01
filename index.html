@@ -76,7 +76,7 @@
         select.addEventListener('change', () => drawChart(select.value));
       }
 
-      function drawChart(selectedWeek) {
+function drawChart(selectedWeek) {
   const weekData = groupedData[selectedWeek];
   if (!weekData) return;
 
@@ -111,6 +111,7 @@
 
   const chart = new google.visualization.PieChart(document.getElementById('piechart'));
   chart.draw(data, options);
+}
 }
 
         const chartColors = [];
