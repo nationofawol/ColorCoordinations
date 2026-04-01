@@ -77,36 +77,57 @@
       }
 
       function drawChart(selectedWeek) {
-        const weekData = groupedData[selectedWeek];
-        if (!weekData) return;
+  const weekData = groupedData[selectedWeek];
+  if (!weekData) return;
 
-        const data = new google.visualization.DataTable();
-        data.addColumn('string', 'Color');
-        data.addColumn('number', 'Points');
+  const data = new google.visualization.DataTable();
+  data.addColumn('string', 'Color');
+  data.addColumn('number', 'Points');
+
+  const chartColors = [];
+  const slices = {};
+
+  Object.keys(weekData).forEach((color, index) => {
+    const points = weekData[color];
+    data.addRow([color, points]);
+
+    // Set slice color
+    const fillColor = colorMap[color] || "#888888";
+    chartColors.push(fillColor);
+
+    // Special case: white slice needs black text
+    if (color.toLowerCase() === "white") {
+      slices[index] = { textStyle: { color: '#000000' } };
+    }
+  });
+
+  const options = {
+    title: `Colors Worn – ${selectedWeek}`,
+    pieHole: 0.4,
+    legend: { position: 'right' },
+    colors: chartColors,
+    slices: slices
+  };
+
+  const chart = new google.visualization.PieChart(document.getElementById('piechart'));
+  chart.draw(data, options);
+}
 
         const chartColors = [];
-        const slices = {};
 
-        Object.keys(weekData).forEach((color, index) => {
+        Object.keys(weekData).forEach(color => {
           const points = weekData[color];
           data.addRow([color, points]);
 
-          // Set slice color
-          const fillColor = colorMap[color] || "#888888";
-          chartColors.push(fillColor);
-
-          // White slice text = black
-          if (color.toLowerCase() === "white") {
-            slices[index] = { textStyle: { color: '#000000' } };
-          }
+          // pick mapped color or default if not in map
+          chartColors.push(colorMap[color] || "#888888");
         });
 
         const options = {
           title: `Colors Worn – ${selectedWeek}`,
           pieHole: 0.4,
           legend: { position: 'right' },
-          colors: chartColors,
-          slices: slices
+          colors: chartColors
         };
 
         const chart = new google.visualization.PieChart(document.getElementById('piechart'));
