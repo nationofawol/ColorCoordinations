@@ -4,39 +4,47 @@
     <meta charset="UTF-8">
     <title>Weekly Color Chart</title>
 
-    <!-- Google Charts -->
+    <!-- Load Google Charts -->
     <script src="https://www.gstatic.com/charts/loader.js"></script>
+    <!-- Load Papa Parse (CSV parser) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 
     <script>
       google.charts.load('current', {'packages':['corechart']});
-      google.charts.setOnLoadCallback(drawChart);
+      google.charts.setOnLoadCallback(fetchAndDraw);
 
-      function drawChart() {
-        // Replace with your working gviz/tq link
-        var query = new google.visualization.Query(
-          "https://docs.google.com/spreadsheets/d/10_W6nd2lukn-dJG3wrzY7TQiS5GfC-37tpRwhSYUJ3E/gviz/tq?gid=1808384245&tq=select A,B where C='Week 3/30/26'"
-        );
+      function fetchAndDraw() {
+        // URL of your published CSV
+        const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqnTcuo72ApWjIBwtCm9SUTlRnzgTbBzU7u3hALw7idVOuZDHbtvHWSdxy-dZMpNIMKYkxUMfokgPF/pub?gid=1036373024&single=true&output=csv";
 
-        query.send(function(response) {
-          if (response.isError()) {
-            console.error(response.getMessage());
-            return;
+        Papa.parse(csvUrl, {
+          download: true,
+          header: true,
+          complete: function(results) {
+            const rows = results.data;
+
+            // Build DataTable
+            const data = new google.visualization.DataTable();
+            data.addColumn('string', 'Color');
+            data.addColumn('number', 'Points');
+
+            // Insert only rows where Week is “Week 3/30/26”
+            rows.forEach(row => {
+              if (row.Week === "Week 3/30/26") {
+                data.addRow([row.Color, Number(row.Points)]);
+              }
+            });
+
+            // Draw chart
+            const options = {
+              title: 'Colors Worn – Week 3/30/26',
+              pieHole: 0.4,
+              legend: { position: 'right' }
+            };
+
+            const chart = new google.visualization.PieChart(document.getElementById('piechart'));
+            chart.draw(data, options);
           }
-
-          var data = response.getDataTable();
-
-          var options = {
-            title: 'Colors Worn – Week 3/30/26',
-            pieHole: 0.4,
-            legend: { position: 'right' },
-            colors: ['White', 'Pink', 'Red', 'Orange', 'Tan', 'Yellow', 'Green', 'Blue', 'Purple', 'Brown', 'Black'] // match your actual clothing colors
-          };
-
-          var chart = new google.visualization.PieChart(
-            document.getElementById('piechart')
-          );
-
-          chart.draw(data, options);
         });
       }
     </script>
