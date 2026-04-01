@@ -1,1 +1,51 @@
-blank
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Weekly Color Chart</title>
+
+```
+<!-- Google Charts -->
+<script src="https://www.gstatic.com/charts/loader.js"></script>
+
+<script>
+  google.charts.load('current', {'packages':['corechart']});
+  google.charts.setOnLoadCallback(drawChart);
+
+  function drawChart() {
+    var query = new google.visualization.Query(
+      "https://docs.google.com/spreadsheets/d/10_W6nd2lukn-dJG3wrzY7TQiS5GfC-37tpRwhSYUJ3E/gviz/tq?gid=1808384245"
+    );
+
+    query.send(function(response) {
+      if (response.isError()) {
+        console.error(response.getMessage());
+        return;
+      }
+
+      var data = response.getDataTable();
+
+      var options = {
+        title: 'Colors Worn This Week',
+        pieHole: 0.4,
+        legend: { position: 'right' }
+      };
+
+      var chart = new google.visualization.PieChart(
+        document.getElementById('piechart')
+      );
+
+      chart.draw(data, options);
+    });
+  }
+</script>
+```
+
+  </head>
+
+  <body>
+    <h2>Weekly Color Breakdown</h2>
+    <div id="piechart" style="width: 700px; height: 500px;"></div>
+  </body>
+</html>
