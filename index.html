@@ -156,6 +156,108 @@ function drawPie(title, weekData, containerId, map) {
   const chart = new google.visualization.PieChart(document.getElementById(containerId));
   chart.draw(data, options);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+     function fetchData() {
+      const csvWeekly = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqnTcuo72ApWjIBwtCm9SUTlRnzgTbBzU7u3hALw7idVOuZDHbtvHWSdxy-dZMpNIMKYkxUMfokgPF/pub?gid=0&single=true&output=csv";
+
+      Papa.parse(csvWeekly, {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: function(results) {
+          groupedDataWeekly = {};
+
+          results.data.forEach(row => {
+            const day = (row.DayofWeek || "Day of Week").toString().trim();
+            const primary = (row.PrimaryColor || "Primary Color").toString().trim();
+            const secondary = (row.SecondaryColor || "Secondary Color").toString().trim();
+            const tertiary = (row.TertiaryColor || "Tertiary Color").toString().trim();
+            
+
+            let groupedDataWeekly = {};
+
+function fetchData() {
+  const csvWeekly = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqnTcuo72ApWjIBwtCm9SUTlRnzgTbBzU7u3hALw7idVOuZDHbtvHWSdxy-dZMpNIMKYkxUMfokgPF/pub?gid=0&single=true&output=csv";
+
+  Papa.parse(csvWeekly, {
+    download: true,
+    header: true,
+    skipEmptyLines: true,
+    complete: function(results) {
+
+      groupedDataWeekly = {};
+
+      results.data.forEach(row => {
+        const day = (row.DayofWeek || "").trim();
+        const primary = (row.PrimaryColor || "").trim();
+        const secondary = (row.SecondaryColor || "").trim();
+        const tertiary = (row.TertiaryColor || "").trim();
+
+        if (!day) return;
+
+        // initialize day
+        if (!groupedDataWeekly[day]) {
+          groupedDataWeekly[day] = {};
+        }
+
+        // apply weights
+        addColor(day, primary, .03);
+        addColor(day, secondary, .02);
+        addColor(day, tertiary, .01);
+      });
+
+      console.log(groupedDataWeekly);
+      function buildBarChart() {
+  const days = Object.keys(groupedDataWeekly);
+  const allColors = {};
+
+  // collect all colors
+  days.forEach(day => {
+    Object.keys(groupedDataWeekly[day]).forEach(color => {
+      if (!allColors[color]) allColors[color] = [];
+    });
+  });
+
+  // fill datasets
+  days.forEach((day, i) => {
+    Object.keys(allColors).forEach(color => {
+      allColors[color][i] = groupedDataWeekly[day][color] || 0;
+    });
+  });
+
+  const datasets = Object.keys(allColors).map(color => ({
+    label: color,
+    data: allColors[color],
+    backgroundColor: colorMap[color] || "#888"
+  }));
+
+  new Chart(document.getElementById("rightChart"), {
+    type: "bar",
+    data: {
+      labels: days,
+      datasets: datasets
+    },
+    options: {
+      scales: {
+        x: { stacked: true },
+        y: { stacked: true, max: 100 }
+      }
+    }
+  });
+}
   </script>
 </head>
 <body>
