@@ -49,7 +49,7 @@
   const week = (row.Week || "").trim();
   const color = (row.Color || "").trim();
   const points = Number(row.Points || 0);
-  const type = (row.Type || "").trim().toLowerCase();
+  const type = (row.Type || "").trim();
 
   // ✅ ONLY include outfits
   if (type !== "Outfit") return;
