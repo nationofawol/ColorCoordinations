@@ -29,6 +29,29 @@
       "Purple": "#E6E6FA",
       "Brown": "#964B00"
     };
+    const feelingMap = {
+  "Joyful": "#FFD700",
+  "Proud": "#FF8C00",
+  "Accepted": "#ADFF2F",
+  "Optimistic": "#00CED1",
+  "Guilty": "#8B0000",
+  "Abandoned": "#A9A9A9",
+  "Despair": "#4B0082",
+  "Depressed": "#00008B",
+  "Lonely": "#708090",
+  "Bored": "#D3D3D3",
+  "Disappointed": "#FFA07A",
+  "Hurt": "#B22222",
+  "Threatened": "#FF4500",
+  "Aggressive": "#DC143C",
+  "Frustrated": "#FF6347",
+  "Rejected": "#800000",
+  "Insecure": "#2F4F4F",
+  "Anxious": "#FF1493",
+  "Scared": "#8B0000",
+  "Secure": "#32CD32",
+  "Overwhelmed": "#9932CC"
+};
 
     function fetchData() {
       const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqnTcuo72ApWjIBwtCm9SUTlRnzgTbBzU7u3hALw7idVOuZDHbtvHWSdxy-dZMpNIMKYkxUMfokgPF/pub?gid=1036373024&single=true&output=csv";
@@ -82,42 +105,42 @@
       select.addEventListener('change', () => drawCharts(select.value));
     }
 
-    function drawCharts(selectedWeek) {
-      drawPie('Colors Worn – ' + selectedWeek, groupedData[selectedWeek].Outfit, 'piechartOutfit');
-      drawPie('Feelings – ' + selectedWeek, groupedData[selectedWeek].Feeling, 'piechartFeeling');
-    }
+  function drawCharts(selectedWeek) {
+  drawPie('Colors Worn – ' + selectedWeek, groupedData[selectedWeek].Outfit, 'piechartOutfit', colorMap);
+  drawPie('Feelings – ' + selectedWeek, groupedData[selectedWeek].Feeling, 'piechartFeeling', feelingMap);
+}
 
-    function drawPie(title, weekData, containerId) {
-      if (!weekData || Object.keys(weekData).length === 0) return;
+function drawPie(title, weekData, containerId, map) {
+  if (!weekData || Object.keys(weekData).length === 0) return;
 
-      const data = new google.visualization.DataTable();
-      data.addColumn('string', 'Color');
-      data.addColumn('number', 'Points');
+  const data = new google.visualization.DataTable();
+  data.addColumn('string', 'Category');
+  data.addColumn('number', 'Points');
 
-      const chartColors = [];
-      const slices = {};
+  const chartColors = [];
+  const slices = {};
 
-      Object.keys(weekData).forEach((color, index) => {
-        const points = Number(weekData[color]);
-        data.addRow([color, points]);
+  Object.keys(weekData).forEach((key, index) => {
+    const points = Number(weekData[key]);
+    data.addRow([key, points]);
 
-        const fillColor = colorMap[color] || "#888888";
-        chartColors.push(fillColor);
+    const fillColor = map[key] || "#888888"; // use colorMap or feelingMap
+    chartColors.push(fillColor);
 
-        if (color.toLowerCase() === "white") slices[index] = { textStyle: { color: '#000000' } };
-      });
+    if (key.toLowerCase() === "white") slices[index] = { textStyle: { color: '#000000' } };
+  });
 
-      const options = {
-        title: title,
-        pieHole: 0.4,
-        legend: { position: 'right' },
-        colors: chartColors,
-        slices: slices
-      };
+  const options = {
+    title: title,
+    pieHole: 0.4,
+    legend: { position: 'right' },
+    colors: chartColors,
+    slices: slices
+  };
 
-      const chart = new google.visualization.PieChart(document.getElementById(containerId));
-      chart.draw(data, options);
-    }
+  const chart = new google.visualization.PieChart(document.getElementById(containerId));
+  chart.draw(data, options);
+}
   </script>
 </head>
 <body>
