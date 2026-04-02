@@ -188,10 +188,10 @@ function fetchDailyData() {
       groupedDaily = {};
 
       results.data.forEach(row => {
-        const day = (row.DayofWeek || "").trim();
-        const primary = (row.PrimaryColor || "").trim();
-        const secondary = (row.SecondaryColor || "").trim();
-        const tertiary = (row.TertiaryColor || "").trim();
+        const day = (row.DayofWeek || "Day of Week").trim();
+        const primary = (row.PrimaryColor || "Primary Color").trim();
+        const secondary = (row.SecondaryColor || "Secondary Color").trim();
+        const tertiary = (row.TertiaryColor || "Tertiary Color").trim();
 
         if (!day) return;
 
