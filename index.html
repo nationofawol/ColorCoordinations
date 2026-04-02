@@ -49,7 +49,7 @@
   const week = (row.Week || "").trim();
   const color = (row.Color || "").trim();
   const points = Number(row.Points || 0);
-  const type = (row.Type || "").toString().trim().toLowerCase();
+  const type = (row.Type || "").trim();
   // ONLY include outfits
   if (type !== "Outfit") return;
 
@@ -116,7 +116,7 @@
       });
 
       console.log("Drawing chart for week:", selectedWeek);
-
+console.log("TYPE VALUE:", row.Type);
       const options = {
         title: `Colors Worn – ${selectedWeek}`,
         pieHole: 0.4,
