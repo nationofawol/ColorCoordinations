@@ -42,23 +42,25 @@
         complete: function(results) {
           console.log("CSV loaded:", results.data);
 
-          groupedData = {};
+        groupedData = {};
 
-     results.data.forEach(row => {
-  const week = (row.Week || "").trim();
-  const color = (row.Color || "").trim();
-  const points = Number(row.Points || 0);
-  const type = (row.Type || "").trim();
-  // ONLY include outfits
- // if (type !== "Outfit") return;
+results.data.forEach((row, i) => {
+  const week = (row.Week || "").toString().trim();
+  const color = (row.Color || "").toString().trim();
+  const points = parseFloat((row.Points || "0").toString().trim());
+  const type = (row.Type || "").toString().trim().toLowerCase();
 
-  if (!week || !color || points === 0 || type!== "Outfit") return;
+  console.log(`Row ${i}: Week="${week}", Color="${color}", Points=${points}, Type="${type}"`);
+
+  if (!week || !color || points <= 0 || type !== "outfit") return;
 
   if (!groupedData[week]) groupedData[week] = {};
   if (!groupedData[week][color]) groupedData[week][color] = 0;
 
   groupedData[week][color] += points;
 });
+
+console.log("Grouped Data:", groupedData);
 
           console.log("Grouped data:", groupedData);
           populateDropdown();
