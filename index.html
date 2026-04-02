@@ -23,7 +23,6 @@
       "Tan": "#D6B588",
       "Blue": "#007bff",
       "Green": "#28a745",
-      "Gray": "#6c757d",
       "Red": "#dc3545",
       "Yellow": "#ffc107",
       "Orange": "#fd7e14",
@@ -51,7 +50,7 @@
   const points = Number(row.Points || 0);
   const type = (row.Type || "").trim();
   // ONLY include outfits
- // if (type !== "Outfit") return;
+  if (type !== "Outfit") return;
 
   if (!week || !color || points === 0) return;
 
