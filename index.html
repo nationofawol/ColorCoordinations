@@ -62,12 +62,6 @@
   groupedData[week][color] += points;
 });
 
-            if (!groupedData[week]) groupedData[week] = {};
-            if (!groupedData[week][color]) groupedData[week][color] = 0;
-
-            groupedData[week][color] += points;
-          });
-
           console.log("Grouped data:", groupedData);
           populateDropdown();
         },
