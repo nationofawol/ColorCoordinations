@@ -13,7 +13,7 @@
     google.charts.load('current', {'packages':['corechart']});
     google.charts.setOnLoadCallback(fetchData);
 
-    let groupedData = {}; // { Week -> { Color -> sumPoints } }
+    let groupedData = {}; // { Week -> { Outfit: {Color:Points}, Feeling: {Color:Points} } }
 
     const colorMap = {
       "White": "#ffffff",
@@ -46,13 +46,12 @@
             const points = parseFloat((row.Points || "0").toString().trim());
             const type = (row.Type || "").toString().trim().toLowerCase();
 
-            // Only include outfits with points > 0
-            if (!week || !color || isNaN(points) || points <= 0 || type !== "outfit") return;
+            if (!week || !color || isNaN(points) || points <= 0) return;
 
-            if (!groupedData[week]) groupedData[week] = {};
-            if (!groupedData[week][color]) groupedData[week][color] = 0;
+            if (!groupedData[week]) groupedData[week] = { Outfit: {}, Feeling: {} };
 
-            groupedData[week][color] += points;
+            if (type === "outfit") groupedData[week].Outfit[color] = (groupedData[week].Outfit[color] || 0) + points;
+            if (type === "feeling") groupedData[week].Feeling[color] = (groupedData[week].Feeling[color] || 0) + points;
           });
 
           populateDropdown();
@@ -77,15 +76,19 @@
       if (select.options.length > 0) {
         const latestWeek = Object.keys(groupedData).pop();
         select.value = latestWeek;
-        drawChart(latestWeek);
+        drawCharts(latestWeek);
       }
 
-      select.addEventListener('change', () => drawChart(select.value));
+      select.addEventListener('change', () => drawCharts(select.value));
     }
 
-    function drawChart(selectedWeek) {
-      const weekData = groupedData[selectedWeek];
-      if (!weekData) return;
+    function drawCharts(selectedWeek) {
+      drawPie('Colors Worn – ' + selectedWeek, groupedData[selectedWeek].Outfit, 'piechartOutfit');
+      drawPie('Feelings – ' + selectedWeek, groupedData[selectedWeek].Feeling, 'piechartFeeling');
+    }
+
+    function drawPie(title, weekData, containerId) {
+      if (!weekData || Object.keys(weekData).length === 0) return;
 
       const data = new google.visualization.DataTable();
       data.addColumn('string', 'Color');
@@ -105,14 +108,14 @@
       });
 
       const options = {
-        title: `Colors Worn – ${selectedWeek}`,
+        title: title,
         pieHole: 0.4,
         legend: { position: 'right' },
         colors: chartColors,
         slices: slices
       };
 
-      const chart = new google.visualization.PieChart(document.getElementById('piechart'));
+      const chart = new google.visualization.PieChart(document.getElementById(containerId));
       chart.draw(data, options);
     }
   </script>
@@ -121,6 +124,8 @@
   <h2>Weekly Color Breakdown</h2>
   <label for="weekSelect">Select Week:</label>
   <select id="weekSelect"></select>
-  <div id="piechart" style="width: 700px; height: 500px;"></div>
+
+  <div id="piechartOutfit" style="width: 700px; height: 500px;"></div>
+  <div id="piechartFeeling" style="width: 700px; height: 500px;"></div>
 </body>
 </html>
