@@ -142,6 +142,18 @@ function drawPie(title, weekData, containerId, map) {
   const chart = new google.visualization.PieChart(document.getElementById(containerId));
   chart.draw(data, options);
 }
+    .container {
+  display: flex;
+}
+
+.left {
+  width: 50%;
+}
+
+.right {
+  width: 50%;
+}
+    
   </script>
 </head>
 <body>
@@ -149,7 +161,7 @@ function drawPie(title, weekData, containerId, map) {
   <label for="weekSelect">Select Week:</label>
   <select id="weekSelect"></select>
 
-  <div id="piechartOutfit" style="width: 700px; height: 500px;"></div>
-  <div id="piechartFeeling" style="width: 700px; height: 500px;"></div>
+  <div class="left", id="piechartOutfit" style="width: 700px; height: 500px;"></div>
+  <div class="left", id="piechartFeeling" style="width: 700px; height: 500px;"></div>
 </body>
 </html>
