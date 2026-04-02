@@ -21,12 +21,14 @@
 </style>
   <!-- Google Charts -->
   <script src="https://www.gstatic.com/charts/loader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <!-- Papa Parse -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 
   <script>
     google.charts.load('current', {'packages':['corechart']});
     google.charts.setOnLoadCallback(fetchData);
+    google.charts.setOnLoadCallback(fetchDailyData);
 
     let groupedData = {}; // { Week -> { Outfit: {Color:Points}, Feeling: {Color:Points} } }
 
@@ -156,6 +158,129 @@ function drawPie(title, weekData, containerId, map) {
   const chart = new google.visualization.PieChart(document.getElementById(containerId));
   chart.draw(data, options);
 }
+
+
+
+
+
+    // ===== DAILY BAR CHART SECTION =====
+
+let groupedDaily = {};
+let barChartInstance = null;
+
+// safely map colors
+function getColorFromMap(color) {
+  if (!color) return "#888";
+  const fixed = color.trim().charAt(0).toUpperCase() + color.trim().slice(1).toLowerCase();
+  return colorMap[fixed] || "#888";
+}
+
+// fetch daily CSV (Primary / Secondary / Tertiary)
+function fetchDailyData() {
+  const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqnTcuo72ApWjIBwtCm9SUTlRnzgTbBzU7u3hALw7idVOuZDHbtvHWSdxy-dZMpNIMKYkxUMfokgPF/pub?gid=0&single=true&output=csv";
+
+  Papa.parse(csvUrl, {
+    download: true,
+    header: true,
+    skipEmptyLines: true,
+    complete: function(results) {
+
+      groupedDaily = {};
+
+      results.data.forEach(row => {
+        const day = (row.DayofWeek || "").trim();
+        const primary = (row.PrimaryColor || "").trim();
+        const secondary = (row.SecondaryColor || "").trim();
+        const tertiary = (row.TertiaryColor || "").trim();
+
+        if (!day) return;
+
+        if (!groupedDaily[day]) groupedDaily[day] = {};
+
+        addColor(day, primary, 0.5);
+        addColor(day, secondary, 0.3);
+        addColor(day, tertiary, 0.2);
+      });
+
+      buildBarChart();
+    }
+  });
+}
+
+// weighting function
+function addColor(day, color, weight) {
+  if (!color) return;
+
+  const fixed = color.trim().charAt(0).toUpperCase() + color.trim().slice(1).toLowerCase();
+
+  if (!groupedDaily[day][fixed]) {
+    groupedDaily[day][fixed] = 0;
+  }
+
+  groupedDaily[day][fixed] += weight * 100;
+}
+
+// build stacked bar chart
+function buildBarChart() {
+  const days = Object.keys(groupedDaily);
+  const allColors = {};
+
+  // collect all colors
+  days.forEach(day => {
+    Object.keys(groupedDaily[day]).forEach(color => {
+      if (!allColors[color]) allColors[color] = [];
+    });
+  });
+
+  // fill missing values
+  days.forEach((day, i) => {
+    Object.keys(allColors).forEach(color => {
+      allColors[color][i] = groupedDaily[day][color] || 0;
+    });
+  });
+
+  const datasets = Object.keys(allColors).map(color => ({
+    label: color,
+    data: allColors[color],
+    backgroundColor: getColorFromMap(color),
+    borderColor: color === "White" ? "#000" : "transparent",
+    borderWidth: color === "White" ? 1 : 0
+  }));
+
+  // destroy old chart before creating new one (prevents duplicates)
+  if (barChartInstance) {
+    barChartInstance.destroy();
+  }
+
+  barChartInstance = new Chart(document.getElementById("rightChart"), {
+    type: "bar",
+    data: {
+      labels: days,
+      datasets: datasets
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: "bottom" }
+      },
+      scales: {
+        x: { stacked: true },
+        y: {
+          stacked: true,
+          beginAtZero: true,
+          max: 100,
+          title: {
+            display: true,
+            text: "Percentage (%)"
+          }
+        }
+      }
+    }
+  });
+}
+
+
+    
   </script>
 </head>
 <body>
