@@ -197,15 +197,32 @@ function fetchDailyData() {
 
         if (!groupedDaily[day]) groupedDaily[day] = {};
 
-        addColor(day, primary, 3);
-        addColor(day, secondary, 2);
-        addColor(day, tertiary, 1);
+        addColor(day, primary, 0.5);
+        addColor(day, secondary, 0.3);
+        addColor(day, tertiary, 0.2);
       });
 
-      function buildBarChart() {
-  const dayOrder = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
-  const days = dayOrder.filter(d => groupedDaily[d]);
+      buildBarChart();
+    }
+  });
+}
 
+// weighting function
+function addColor(day, color, weight) {
+  if (!color) return;
+
+  const fixed = color.trim().charAt(0).toUpperCase() + color.trim().slice(1).toLowerCase();
+
+  if (!groupedDaily[day][fixed]) {
+    groupedDaily[day][fixed] = 0;
+  }
+
+  groupedDaily[day][fixed] += weight * 100;
+}
+
+// build stacked bar chart
+function buildBarChart() {
+  const days = Object.keys(groupedDaily);
   const allColors = {};
 
   // collect all colors
@@ -215,12 +232,10 @@ function fetchDailyData() {
     });
   });
 
-  // fill data and normalize to 100%
-  days.forEach(day => {
-    const total = Object.values(groupedDaily[day]).reduce((a,b)=>a+b,0);
+  // fill missing values
+  days.forEach((day, i) => {
     Object.keys(allColors).forEach(color => {
-      const value = groupedDaily[day][color] || 0;
-      allColors[color].push(total ? (value / total) * 100 : 0); // % of total
+      allColors[color][i] = groupedDaily[day][color] || 0;
     });
   });
 
@@ -232,21 +247,38 @@ function fetchDailyData() {
     borderWidth: color === "White" ? 1 : 0
   }));
 
-  if (barChartInstance) barChartInstance.destroy();
+  // destroy old chart before creating new one (prevents duplicates)
+  if (barChartInstance) {
+    barChartInstance.destroy();
+  }
 
   barChartInstance = new Chart(document.getElementById("rightChart"), {
     type: "bar",
-    data: { labels: days, datasets: datasets },
+    data: {
+      labels: days,
+      datasets: datasets
+    },
     options: {
       responsive: true,
-      plugins: { legend: { position: "bottom" } },
+      plugins: {
+        legend: { position: "bottom" }
+      },
       scales: {
         x: { stacked: true },
-        y: { stacked: true, beginAtZero: true, max: 100, title: { display: true, text: "Percentage (%)" } }
+        y: {
+          stacked: true,
+          beginAtZero: true,
+          max: 100,
+          title: {
+            display: true,
+            text: "Percentage (%)"
+          }
+        }
       }
     }
   });
 }
+
 
     
   </script>
