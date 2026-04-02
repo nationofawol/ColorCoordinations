@@ -50,9 +50,9 @@
   const points = Number(row.Points || 0);
   const type = (row.Type || "").trim();
   // ONLY include outfits
-  if (type !== "Outfit") return;
+ // if (type !== "Outfit") return;
 
-  if (!week || !color || points === 0) return;
+  if (!week || !color || points === 0 || type!== "Outfit") return;
 
   if (!groupedData[week]) groupedData[week] = {};
   if (!groupedData[week][color]) groupedData[week][color] = 0;
