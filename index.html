@@ -45,12 +45,22 @@
 
           groupedData = {};
 
-          results.data.forEach(row => {
-            const week = (row.Week || "").trim();
-            const color = (row.Color || "").trim();
-            const points = Number(row.Points || 0);
+         results.data.forEach(row => {
+  const week = (row.Week || "").trim();
+  const color = (row.Color || "").trim();
+  const points = Number(row.Points || 0);
+  const type = (row.Type || "").trim().toLowerCase();
 
-            if (!week || !color || points === 0) return;
+  // ✅ ONLY include outfits
+  if (type !== "outfit") return;
+
+  if (!week || !color || points === 0) return;
+
+  if (!groupedData[week]) groupedData[week] = {};
+  if (!groupedData[week][color]) groupedData[week][color] = 0;
+
+  groupedData[week][color] += points;
+});
 
             if (!groupedData[week]) groupedData[week] = {};
             if (!groupedData[week][color]) groupedData[week][color] = 0;
