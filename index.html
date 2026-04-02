@@ -8,44 +8,51 @@
   <script src="https://www.gstatic.com/charts/loader.js"></script>
   <!-- Papa Parse -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  <style>
-    .container {
-      display: flex;
-    }
-
-    .left {
-      width: 50%;
-    }
-
-    .right {
-      width: 50%;
-      padding: 20px;
-    }
-  </style>
 
   <script>
     google.charts.load('current', {'packages':['corechart']});
     google.charts.setOnLoadCallback(fetchData);
 
-    let groupedData = {};
+    let groupedData = {}; // { Week -> { Outfit: {Color:Points}, Feeling: {Color:Points} } }
 
     const colorMap = {
-      "White": "#ffffff","Black": "#000000","Pink": "#FF69B4","Tan": "#D6B588",
-      "Blue": "#007bff","Green": "#28a745","Gray": "#6c757d","Red": "#dc3545",
-      "Yellow": "#ffc107","Orange": "#fd7e14","Purple": "#E6E6FA","Brown": "#964B00"
+      "White": "#ffffff",
+      "Black": "#000000",
+      "Pink": "#FF69B4",
+      "Tan": "#D6B588",
+      "Blue": "#007bff",
+      "Green": "#28a745",
+      "Gray": "#6c757d",
+      "Red": "#dc3545",
+      "Yellow": "#ffc107",
+      "Orange": "#fd7e14",
+      "Purple": "#E6E6FA",
+      "Brown": "#964B00"
     };
-
     const feelingMap = {
-      "Joyful": "#ffc107","Proud": "#F54627","Accepted": "#0BC908","Optimistic": "#00CED1",
-      "Guilty": "#6A736A","Abandoned": "#584666","Despair": "#111112","Depressed": "#212163",
-      "Lonely": "#76A5CC","Bored": "#D17B3B","Disappointed": "#8F6C9E","Hurt": "#ED3A37",
-      "Threatened": "#572424","Aggressive": "#B50404","Frustrated": "#D65E5E",
-      "Rejected": "#4B1566","Insecure": "#7807B3","Anxious": "#F59A14",
-      "Scared": "#130B61","Secure": "#155C07","Overwhelmed": "#E8980E","Energized": "#F5F27D"
-    };
+  "Joyful": "#ffc107",
+  "Proud": "#F54627",
+  "Accepted": "#0BC908",
+  "Optimistic": "#00CED1",
+  "Guilty": "#6A736A",
+  "Abandoned": "#584666",
+  "Despair": "#111112",
+  "Depressed": "#212163",
+  "Lonely": "#76A5CC",
+  "Bored": "#D17B3B",
+  "Disappointed": "#8F6C9E",
+  "Hurt": "#ED3A37",
+  "Threatened": "#572424",
+  "Aggressive": "#B50404",
+  "Frustrated": "#D65E5E",
+  "Rejected": "#4B1566",
+  "Insecure": "#7807B3",
+  "Anxious": "#F59A14",
+  "Scared": "#130B61",
+  "Secure": "#155C07",
+  "Overwhelmed": "#E8980E",
+  "Energized": "#F5F27D"
+};
 
     function fetchData() {
       const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqnTcuo72ApWjIBwtCm9SUTlRnzgTbBzU7u3hALw7idVOuZDHbtvHWSdxy-dZMpNIMKYkxUMfokgPF/pub?gid=1036373024&single=true&output=csv";
@@ -58,10 +65,10 @@
           groupedData = {};
 
           results.data.forEach(row => {
-            const week = row.Week?.trim();
-            const color = row.Color?.trim();
-            const points = parseFloat(row.Points);
-            const type = row.Type?.trim().toLowerCase();
+            const week = (row.Week || "").toString().trim();
+            const color = (row.Color || "").toString().trim();
+            const points = parseFloat((row.Points || "0").toString().trim());
+            const type = (row.Type || "").toString().trim().toLowerCase();
 
             if (!week || !color || isNaN(points) || points <= 0) return;
 
@@ -72,6 +79,9 @@
           });
 
           populateDropdown();
+        },
+        error: function(err) {
+          console.error("CSV parsing error:", err);
         }
       });
     }
@@ -96,72 +106,62 @@
       select.addEventListener('change', () => drawCharts(select.value));
     }
 
-    function drawCharts(selectedWeek) {
-      drawPie('Outfit – ' + selectedWeek, groupedData[selectedWeek].Outfit, 'piechartOutfit', colorMap);
-      drawPie('Feelings – ' + selectedWeek, groupedData[selectedWeek].Feeling, 'piechartFeeling', feelingMap);
-    }
+  function drawCharts(selectedWeek) {
+  drawPie('Weekly Analysis of Colors Worn – ' + selectedWeek, groupedData[selectedWeek].Outfit, 'piechartOutfit', colorMap);
+  drawPie('Weekly Analysis of Feelings – ' + selectedWeek, groupedData[selectedWeek].Feeling, 'piechartFeeling', feelingMap);
+}
 
-    function drawPie(title, weekData, containerId, map) {
-      if (!weekData || Object.keys(weekData).length === 0) return;
+function drawPie(title, weekData, containerId, map) {
+  if (!weekData || Object.keys(weekData).length === 0) return;
 
-      const data = new google.visualization.DataTable();
-      data.addColumn('string', 'Category');
-      data.addColumn('number', 'Points');
+  const data = new google.visualization.DataTable();
+  data.addColumn('string', 'Category');
+  data.addColumn('number', 'Points');
 
-      const chartColors = [];
+  const chartColors = [];
+  const slices = {};
 
-      Object.keys(weekData).forEach(key => {
-        data.addRow([key, weekData[key]]);
-        chartColors.push(map[key] || "#888");
-      });
+  Object.keys(weekData).forEach((key, index) => {
+    const points = Number(weekData[key]);
+    data.addRow([key, points]);
 
-      const options = {
-        title: title,
-        pieHole: 0.4,
-        legend: { position: 'right' },
-        colors: chartColors
-      };
+    const fillColor = map[key] || "#888888"; // use colorMap or feelingMap
+    chartColors.push(fillColor);
 
-      new google.visualization.PieChart(document.getElementById(containerId)).draw(data, options);
-    }
+    if (key.toLowerCase() === "white") slices[index] = { textStyle: { color: '#000000' } };
+  });
 
-    // SIMPLE RIGHT-SIDE BAR CHART (placeholder example)
-    window.onload = function() {
-      const ctx = document.getElementById("rightChart");
-      new Chart(ctx, {
-        type: "bar",
-        data: {
-          labels: ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
-          datasets: [{
-            label: "% Colors",
-            data: [30,50,40,60,80,70,55],
-            backgroundColor: colorMap
-          }]
-        }
-      });
-    };
+  const options = {
+    title: title,
+    pieHole: 0.4,
+    legend: { position: 'right' },
+    colors: chartColors,
+    slices: slices
+  };
+
+  const chart = new google.visualization.PieChart(document.getElementById(containerId));
+  chart.draw(data, options);
+}
+    .container {
+  display: flex;
+}
+
+.left {
+  width: 50%;
+}
+
+.right {
+  width: 50%;
+}
+    
   </script>
 </head>
-
 <body>
   <h2>Weekly Color Breakdown</h2>
-  <label>Select Week:</label>
+  <label for="weekSelect">Select Week:</label>
   <select id="weekSelect"></select>
 
-  <div class="container">
-
-    <!-- LEFT SIDE (your existing charts) -->
-    <div class="left">
-      <div id="piechartOutfit" style="width: 100%; height: 400px;"></div>
-      <div id="piechartFeeling" style="width: 100%; height: 400px;"></div>
-    </div>
-
-    <!-- RIGHT SIDE (new section) -->
-    <div class="right">
-      <h3>Daily Color %</h3>
-      <canvas id="rightChart"></canvas>
-    </div>
-
-  </div>
+  <div class="left", id="piechartOutfit" style="width: 700px; height: 500px;"></div>
+  <div class="left", id="piechartFeeling" style="width: 700px; height: 500px;"></div>
 </body>
 </html>
