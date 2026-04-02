@@ -50,8 +50,7 @@
   "Anxious": "#F59A14",
   "Scared": "#130B61",
   "Secure": "#155C07",
-  "Overwhelmed": "#E8980E",
-  "Energized": "#F5F27D"
+  "Overwhelmed": "#E8980E"
 };
 
     function fetchData() {
@@ -107,8 +106,8 @@
     }
 
   function drawCharts(selectedWeek) {
-  drawPie('Weekly Analysis of Colors Worn – ' + selectedWeek, groupedData[selectedWeek].Outfit, 'piechartOutfit', colorMap);
-  drawPie('Weekly Analysis of Feelings – ' + selectedWeek, groupedData[selectedWeek].Feeling, 'piechartFeeling', feelingMap);
+  drawPie('Colors Worn – ' + selectedWeek, groupedData[selectedWeek].Outfit, 'piechartOutfit', colorMap);
+  drawPie('Feelings – ' + selectedWeek, groupedData[selectedWeek].Feeling, 'piechartFeeling', feelingMap);
 }
 
 function drawPie(title, weekData, containerId, map) {
@@ -142,18 +141,6 @@ function drawPie(title, weekData, containerId, map) {
   const chart = new google.visualization.PieChart(document.getElementById(containerId));
   chart.draw(data, options);
 }
-    .container {
-  display: flex;
-}
-
-.left {
-  width: 50%;
-}
-
-.right {
-  width: 50%;
-}
-    
   </script>
 </head>
 <body>
@@ -161,7 +148,7 @@ function drawPie(title, weekData, containerId, map) {
   <label for="weekSelect">Select Week:</label>
   <select id="weekSelect"></select>
 
-  <div class="left", id="piechartOutfit" style="width: 700px; height: 500px;"></div>
-  <div class="left", id="piechartFeeling" style="width: 700px; height: 500px;"></div>
+  <div id="piechartOutfit" style="width: 700px; height: 500px;"></div>
+  <div id="piechartFeeling" style="width: 700px; height: 500px;"></div>
 </body>
 </html>
