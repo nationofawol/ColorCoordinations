@@ -15,7 +15,6 @@
 
     let groupedData = {}; // { Week -> { Color -> sumPoints } }
 
-    // Map your color names to actual colors
     const colorMap = {
       "White": "#ffffff",
       "Black": "#000000",
@@ -23,46 +22,39 @@
       "Tan": "#D6B588",
       "Blue": "#007bff",
       "Green": "#28a745",
+      "Gray": "#6c757d",
       "Red": "#dc3545",
       "Yellow": "#ffc107",
       "Orange": "#fd7e14",
       "Purple": "#E6E6FA",
-      "Brown": "#964B00",
+      "Brown": "#964B00"
     };
 
     function fetchData() {
       const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqnTcuo72ApWjIBwtCm9SUTlRnzgTbBzU7u3hALw7idVOuZDHbtvHWSdxy-dZMpNIMKYkxUMfokgPF/pub?gid=1036373024&single=true&output=csv";
-
-      console.log("Fetching CSV from Google Sheets...");
 
       Papa.parse(csvUrl, {
         download: true,
         header: true,
         skipEmptyLines: true,
         complete: function(results) {
-          console.log("CSV loaded:", results.data);
+          groupedData = {};
 
-        groupedData = {};
+          results.data.forEach(row => {
+            const week = (row.Week || "").toString().trim();
+            const color = (row.Color || "").toString().trim();
+            const points = parseFloat((row.Points || "0").toString().trim());
+            const type = (row.Type || "").toString().trim().toLowerCase();
 
-results.data.forEach((row, i) => {
-  const week = (row.Week || "").toString().trim();
-  const color = (row.Color || "").toString().trim();
-  const points = parseFloat((row.Points || "0").toString().trim());
-  const type = (row.Type || "").toString().trim().toLowerCase();
+            // Only include outfits with points > 0
+            if (!week || !color || isNaN(points) || points <= 0 || type !== "outfit") return;
 
-  console.log(`Row ${i}: Week="${week}", Color="${color}", Points=${points}, Type="${type}"`);
+            if (!groupedData[week]) groupedData[week] = {};
+            if (!groupedData[week][color]) groupedData[week][color] = 0;
 
-  if (!week || !color || points <= 0 || type !== "outfit") return;
+            groupedData[week][color] += points;
+          });
 
-  if (!groupedData[week]) groupedData[week] = {};
-  if (!groupedData[week][color]) groupedData[week][color] = 0;
-
-  groupedData[week][color] += points;
-});
-
-console.log("Grouped Data:", groupedData);
-
-          console.log("Grouped data:", groupedData);
           populateDropdown();
         },
         error: function(err) {
@@ -83,8 +75,9 @@ console.log("Grouped Data:", groupedData);
       });
 
       if (select.options.length > 0) {
-        drawChart(select.value);
-        select.value = Object.keys(groupedData).pop(); // default to latest week
+        const latestWeek = Object.keys(groupedData).pop();
+        select.value = latestWeek;
+        drawChart(latestWeek);
       }
 
       select.addEventListener('change', () => drawChart(select.value));
@@ -92,10 +85,7 @@ console.log("Grouped Data:", groupedData);
 
     function drawChart(selectedWeek) {
       const weekData = groupedData[selectedWeek];
-      if (!weekData) {
-        console.warn("No data for week:", selectedWeek);
-        return;
-      }
+      if (!weekData) return;
 
       const data = new google.visualization.DataTable();
       data.addColumn('string', 'Color');
@@ -105,19 +95,15 @@ console.log("Grouped Data:", groupedData);
       const slices = {};
 
       Object.keys(weekData).forEach((color, index) => {
-        const points = weekData[color];
+        const points = Number(weekData[color]);
         data.addRow([color, points]);
 
         const fillColor = colorMap[color] || "#888888";
         chartColors.push(fillColor);
 
-        if (color.toLowerCase() === "white") {
-          slices[index] = { textStyle: { color: '#000000' } };
-        }
+        if (color.toLowerCase() === "white") slices[index] = { textStyle: { color: '#000000' } };
       });
 
-      console.log("Drawing chart for week:", selectedWeek);
-console.log("TYPE VALUE:", row.Type);
       const options = {
         title: `Colors Worn – ${selectedWeek}`,
         pieHole: 0.4,
@@ -131,13 +117,10 @@ console.log("TYPE VALUE:", row.Type);
     }
   </script>
 </head>
-
 <body>
   <h2>Weekly Color Breakdown</h2>
-
   <label for="weekSelect">Select Week:</label>
   <select id="weekSelect"></select>
-
   <div id="piechart" style="width: 700px; height: 500px;"></div>
 </body>
 </html>
