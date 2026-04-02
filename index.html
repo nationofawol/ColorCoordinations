@@ -106,8 +106,8 @@
     }
 
   function drawCharts(selectedWeek) {
-  drawPie('Colors Worn – ' + selectedWeek, groupedData[selectedWeek].Outfit, 'piechartOutfit', colorMap);
-  drawPie('Feelings – ' + selectedWeek, groupedData[selectedWeek].Feeling, 'piechartFeeling', feelingMap);
+  drawPie('Weekly Analysis of Colors Worn – ' + selectedWeek, groupedData[selectedWeek].Outfit, 'piechartOutfit', colorMap);
+  drawPie('Weekly Analysis of Feelings – ' + selectedWeek, groupedData[selectedWeek].Feeling, 'piechartFeeling', feelingMap);
 }
 
 function drawPie(title, weekData, containerId, map) {
