@@ -393,25 +393,24 @@ function buildFeelingsChart() {
 <body>
   <div class="container">
 
-    <!-- LEFT SIDE -->
+    <!-- LEFT SIDE: Weekly Pie Charts -->
     <div class="left">
       <h2>Weekly Color Breakdown</h2>
       <label>Select Week:</label>
       <select id="weekSelect"></select>
 
-      <div id="piechartOutfit" style="width: 100%; height: 400px;"></div>
+      <div id="piechartOutfit" style="width: 100%; height: 400px; margin-bottom: 20px;"></div>
       <div id="piechartFeeling" style="width: 100%; height: 400px;"></div>
     </div>
 
-    <!-- RIGHT SIDE -->
+    <!-- RIGHT SIDE: Daily Stacked Bar Charts -->
     <div class="right">
       <h3>Daily Color %</h3>
-      <canvas id="rightChart"></canvas>
-    </div>
+      <canvas id="rightChart" style="margin-bottom: 40px;"></canvas>
 
-    <!-- Below your color chart -->
-<h3>Daily Feelings %</h3>
-<canvas id="feelingsChart"></canvas>
+      <h3>Daily Feelings %</h3>
+      <canvas id="feelingsChart"></canvas>
+    </div>
 
   </div>
 </body>
