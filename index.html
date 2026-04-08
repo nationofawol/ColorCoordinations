@@ -188,18 +188,18 @@ function fetchDailyData() {
       groupedDaily = {};
 
       results.data.forEach(row => {
-        const day = (row.DayofWeek || "Day of the Week").trim(); // 👈 IMPORTANT
-        const primary = (row.Primary || "Primary Color").trim();
-        const secondary = (row.Secondary || "Secondary Color").trim();
-        const tertiary = (row.Tertiary || "Tertiary Color").trim();
+        const day = (row["Day of the Week"] || "").trim();
+        const primary = (row["Primary Color"] || "").trim();
+        const secondary = (row["Secondary Color"] || "").trim();
+        const tertiary = (row["Tertiary Color"] || "").trim();
 
         if (!day) return;
 
         if (!groupedDaily[day]) groupedDaily[day] = {};
 
-        addColor(day, primary, 0.3);
-        addColor(day, secondary, 0.2);
-        addColor(day, tertiary, 0.1);
+        if (primary) addColor(day, primary, 0.5);
+        if (secondary) addColor(day, secondary, 0.3);
+        if (tertiary) addColor(day, tertiary, 0.2);
       });
 
       buildBarChart();
