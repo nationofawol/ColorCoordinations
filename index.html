@@ -28,7 +28,8 @@
   <script>
     google.charts.load('current', {'packages':['corechart']});
     google.charts.setOnLoadCallback(fetchData);
-    google.charts.setOnLoadCallback(fetchDailyData);
+   google.charts.setOnLoadCallback(fetchDailyData);      // color chart
+google.charts.setOnLoadCallback(fetchFeelingsData);   // feelings chart
 
     let groupedData = {}; // { Week -> { Outfit: {Color:Points}, Feeling: {Color:Points} } }
 
@@ -176,8 +177,7 @@ function getColorFromMap(color) {
 }
 
 // fetch NEW sheet (but group by day)
-google.charts.setOnLoadCallback(fetchDailyData);      // color chart
-google.charts.setOnLoadCallback(fetchFeelingsData);   // feelings chart {
+ function fetchDailyData() {
   const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqnTcuo72ApWjIBwtCm9SUTlRnzgTbBzU7u3hALw7idVOuZDHbtvHWSdxy-dZMpNIMKYkxUMfokgPF/pub?gid=835991268&single=true&output=csv";
 
   Papa.parse(csvUrl, {
@@ -287,6 +287,9 @@ function buildBarChart() {
     // ===== DAILY FEELINGS CHART =====
 let feelingsData = {};
 let feelingsChartInstance = null;
+function fetchFeelingsData() {
+const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqnTcuo72ApWjIBwtCm9SUTlRnzgTbBzU7u3hALw7idVOuZDHbtvHWSdxy-dZMpNIMKYkxUMfokgPF/pub?gid=835991268&single=true&output=csv";
+    
 
   Papa.parse(csvUrl, {
     download: true,
