@@ -176,7 +176,8 @@ function getColorFromMap(color) {
 }
 
 // fetch NEW sheet (but group by day)
-function fetchDailyData() {
+google.charts.setOnLoadCallback(fetchDailyData);      // color chart
+google.charts.setOnLoadCallback(fetchFeelingsData);   // feelings chart {
   const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqnTcuo72ApWjIBwtCm9SUTlRnzgTbBzU7u3hALw7idVOuZDHbtvHWSdxy-dZMpNIMKYkxUMfokgPF/pub?gid=835991268&single=true&output=csv";
 
   Papa.parse(csvUrl, {
@@ -283,6 +284,109 @@ function buildBarChart() {
 }
 
 
+    // ===== DAILY FEELINGS CHART =====
+let feelingsData = {};
+let feelingsChartInstance = null;
+
+  Papa.parse(csvUrl, {
+    download: true,
+    header: true,
+    skipEmptyLines: true,
+    complete: function(results) {
+
+      feelingsData = {};
+
+      results.data.forEach(row => {
+        const day = (row["Day of the Week"] || "").trim();
+        const primary = (row["Primary Feeling"] || "").trim();
+        const secondary = (row["Secondary Feeling"] || "").trim();
+        const tertiary = (row["Tertiary Feeling"] || "").trim();
+
+        if (!day) return;
+
+        if (!feelingsData[day]) feelingsData[day] = {};
+
+        addFeeling(day, primary, 0.5);
+        addFeeling(day, secondary, 0.3);
+        addFeeling(day, tertiary, 0.2);
+      });
+
+      buildFeelingsChart();
+    }
+  });
+}
+
+// weighting function
+function addFeeling(day, feeling, weight) {
+  if (!feeling) return;
+
+  const fixed = feeling.charAt(0).toUpperCase() + feeling.slice(1).toLowerCase();
+
+  if (!feelingsData[day][fixed]) feelingsData[day][fixed] = 0;
+
+  feelingsData[day][fixed] += weight * 100;
+}
+
+// build stacked chart
+function buildFeelingsChart() {
+  const daysOrder = ["Monday","Tuesday","Wednesday","Thursday","Friday"];
+  const days = daysOrder.filter(d => feelingsData[d]);
+
+  const allFeelings = {};
+
+  days.forEach(day => {
+    Object.keys(feelingsData[day]).forEach(f => {
+      if (!allFeelings[f]) allFeelings[f] = [];
+    });
+  });
+
+  // fill missing values
+  days.forEach((day, i) => {
+    Object.keys(allFeelings).forEach(f => {
+      allFeelings[f][i] = feelingsData[day][f] || 0;
+    });
+  });
+
+  const datasets = Object.keys(allFeelings).map(f => ({
+    label: f,
+    data: allFeelings[f],
+    backgroundColor: feelingMap[f] || "#888",
+    borderColor: f === "Secure" ? "#000" : "transparent", // optional for contrast
+    borderWidth: f === "Secure" ? 1 : 0
+  }));
+
+  if (feelingsChartInstance) feelingsChartInstance.destroy();
+
+  feelingsChartInstance = new Chart(document.getElementById("feelingsChart"), {
+    type: "bar",
+    data: {
+      labels: days,
+      datasets: datasets
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: "bottom" }
+      },
+      scales: {
+        x: { stacked: true },
+        y: {
+          stacked: true,
+          beginAtZero: true,
+          max: 100,
+          title: {
+            display: true,
+            text: "Percentage (%)"
+          }
+        }
+      }
+    }
+  });
+}
+
+
+
+
     
   </script>
 </head>
@@ -304,6 +408,10 @@ function buildBarChart() {
       <h3>Daily Color %</h3>
       <canvas id="rightChart"></canvas>
     </div>
+
+    <!-- Below your color chart -->
+<h3>Daily Feelings %</h3>
+<canvas id="feelingsChart"></canvas>
 
   </div>
 </body>
