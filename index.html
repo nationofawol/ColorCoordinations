@@ -163,21 +163,21 @@ function drawPie(title, weekData, containerId, map) {
 
 
 
-    // ===== DAILY BAR CHART SECTION =====
+// ===== WEEKLY DATA → GROUPED BY DAY OF WEEK =====
 
 let groupedDaily = {};
 let barChartInstance = null;
 
-// safely map colors
+// keep your color mapper
 function getColorFromMap(color) {
   if (!color) return "#888";
   const fixed = color.trim().charAt(0).toUpperCase() + color.trim().slice(1).toLowerCase();
   return colorMap[fixed] || "#888";
 }
 
-// fetch daily CSV (Primary / Secondary / Tertiary)
+// fetch NEW sheet (but group by day)
 function fetchDailyData() {
-  const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqnTcuo72ApWjIBwtCm9SUTlRnzgTbBzU7u3hALw7idVOuZDHbtvHWSdxy-dZMpNIMKYkxUMfokgPF/pub?gid=0&single=true&output=csv";
+  const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqnTcuo72ApWjIBwtCm9SUTlRnzgTbBzU7u3hALw7idVOuZDHbtvHWSdxy-dZMpNIMKYkxUMfokgPF/pub?gid=835991268&single=true&output=csv";
 
   Papa.parse(csvUrl, {
     download: true,
@@ -188,18 +188,18 @@ function fetchDailyData() {
       groupedDaily = {};
 
       results.data.forEach(row => {
-        const day = (row.DayofWeek || "Day of Week").trim();
-        const primary = (row.PrimaryColor || "Primary Color").trim();
-        const secondary = (row.SecondaryColor || "Secondary Color").trim();
-        const tertiary = (row.TertiaryColor || "Tertiary Color").trim();
+        const day = (row.DayofWeek || "Day of the Week").trim(); // 👈 IMPORTANT
+        const primary = (row.Primary || "Primary Color").trim();
+        const secondary = (row.Secondary || "Secondary Color").trim();
+        const tertiary = (row.Tertiary || "Tertiary Color").trim();
 
         if (!day) return;
 
         if (!groupedDaily[day]) groupedDaily[day] = {};
 
-        addColor(day, primary, 0.5);
-        addColor(day, secondary, 0.3);
-        addColor(day, tertiary, 0.2);
+        addColor(day, primary, 0.3);
+        addColor(day, secondary, 0.2);
+        addColor(day, tertiary, 0.1);
       });
 
       buildBarChart();
@@ -207,7 +207,7 @@ function fetchDailyData() {
   });
 }
 
-// weighting function
+// weighting
 function addColor(day, color, weight) {
   if (!color) return;
 
@@ -220,19 +220,23 @@ function addColor(day, color, weight) {
   groupedDaily[day][fixed] += weight * 100;
 }
 
-// build stacked bar chart
+// build chart
 function buildBarChart() {
-  const days = Object.keys(groupedDaily);
+
+  // 🔥 force correct day order
+  const daysOrder = ["Monday","Tuesday","Wednesday","Thursday","Friday"];
+  const days = daysOrder.filter(d => groupedDaily[d]);
+
   const allColors = {};
 
-  // collect all colors
+  // collect colors
   days.forEach(day => {
     Object.keys(groupedDaily[day]).forEach(color => {
       if (!allColors[color]) allColors[color] = [];
     });
   });
 
-  // fill missing values
+  // fill values
   days.forEach((day, i) => {
     Object.keys(allColors).forEach(color => {
       allColors[color][i] = groupedDaily[day][color] || 0;
@@ -247,7 +251,6 @@ function buildBarChart() {
     borderWidth: color === "White" ? 1 : 0
   }));
 
-  // destroy old chart before creating new one (prevents duplicates)
   if (barChartInstance) {
     barChartInstance.destroy();
   }
