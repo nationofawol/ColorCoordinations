@@ -276,8 +276,8 @@ function buildBarChart() {
     label: color,
     data: allColors[color],
     backgroundColor: getColorFromMap(color),
-    borderColor: color === "White" ? "#000" : "transparent",
-    borderWidth: color === "White" ? 1 : 0
+    borderColor: "#FFFFFF",
+    borderWidth: 1
   }));
 
   if (barChartInstance) {
@@ -310,6 +310,10 @@ barChartInstance = new Chart(document.getElementById("rightChart"), {
     scales: {
       x: {
         stacked: true,
+        grid: {
+        color: "#FFFFFF",        // grid lines
+        borderColor: "#FFFFFF"   // axis line
+        },
         ticks: {
           color: '#FFFFFF'   // ← x‑axis labels
         }
@@ -318,6 +322,10 @@ barChartInstance = new Chart(document.getElementById("rightChart"), {
         stacked: true,
         beginAtZero: true,
         max: 100,
+        grid: {
+        color: "#FFFFFF",        // grid lines
+        borderColor: "#FFFFFF"   // axis line
+        },
         ticks: {
           color: '#FFFFFF'   // ← y‑axis labels
         },
@@ -403,8 +411,8 @@ function buildFeelingsChart() {
     label: f,
     data: allFeelings[f],
     backgroundColor: feelingMap[f] || "#888",
-    borderColor: f === "Secure" ? "#000" : "transparent", // optional for contrast
-    borderWidth: f === "Secure" ? 1 : 0
+    borderColor: "#FFFFFF",
+    borderWidth: 1
   }));
 
   if (feelingsChartInstance) feelingsChartInstance.destroy();
@@ -435,6 +443,10 @@ feelingsChartInstance = new Chart(document.getElementById("feelingsChart"), {
     scales: {
       x: {
         stacked: true,
+        grid: {
+        color: "#FFFFFF",        // grid lines
+        borderColor: "#FFFFFF"   // axis line
+        },
         ticks: {
           color: '#FFFFFF'   // ← x‑axis labels
         }
@@ -443,6 +455,10 @@ feelingsChartInstance = new Chart(document.getElementById("feelingsChart"), {
         stacked: true,
         beginAtZero: true,
         max: 100,
+        grid: {
+        color: "#FFFFFF",        // grid lines
+        borderColor: "#FFFFFF"   // axis line
+        },
         ticks: {
           color: '#FFFFFF'   // ← y‑axis labels
         },
