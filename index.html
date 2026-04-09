@@ -176,7 +176,8 @@ function drawPie(title, weekData, containerId, map) {
     pieHole: 0.4,
     legend: { position: 'right' },
     colors: chartColors,
-    slices: slices
+    slices: slices,
+    backgroundColor: 'transparent'
   };
 
   const chart = new google.visualization.PieChart(document.getElementById(containerId));
@@ -285,6 +286,7 @@ function buildBarChart() {
       labels: days,
       datasets: datasets
     },
+    backgroundColor: 'transparent',
     options: {
       responsive: true,
       plugins: {
@@ -385,6 +387,7 @@ function buildFeelingsChart() {
 
   feelingsChartInstance = new Chart(document.getElementById("feelingsChart"), {
     type: "bar",
+    backgroundColor: 'transparent',
     data: {
       labels: days,
       datasets: datasets
