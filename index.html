@@ -284,34 +284,52 @@ function buildBarChart() {
     barChartInstance.destroy();
   }
 
-  barChartInstance = new Chart(document.getElementById("rightChart"), {
-    type: "bar",
-    data: {
-      labels: days,
-      datasets: datasets
-    },
-    titleTextStyle: { color: '#FFFFFF' },
+barChartInstance = new Chart(document.getElementById("rightChart"), {
+  type: "bar",
+  data: {
+    labels: days,
+    datasets: datasets
+  },
+  options: {
+    responsive: true,
     backgroundColor: 'transparent',
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { position: "bottom",
-                color: '#FFFFFF' }
+
+    plugins: {
+      legend: {
+        position: "bottom",
+        labels: {
+          color: '#FFFFFF'   // ← legend text color
+        }
       },
-      scales: {
-        x: { stacked: true },
-        y: {
-          stacked: true,
-          beginAtZero: true,
-          max: 100,
-          title: {
-            display: true,
-            text: "Percentage (%)"
-          }
+      title: {
+        display: true,      // or true if you want a title
+        color: '#FFFFFF'
+      }
+    },
+
+    scales: {
+      x: {
+        stacked: true,
+        ticks: {
+          color: '#FFFFFF'   // ← x‑axis labels
+        }
+      },
+      y: {
+        stacked: true,
+        beginAtZero: true,
+        max: 100,
+        ticks: {
+          color: '#FFFFFF'   // ← y‑axis labels
+        },
+        title: {
+          display: true,
+          text: "Percentage (%)",
+          color: '#FFFFFF'   // ← y‑axis title
         }
       }
     }
-  });
+  }
+});
 }
 
 
@@ -391,35 +409,52 @@ function buildFeelingsChart() {
 
   if (feelingsChartInstance) feelingsChartInstance.destroy();
 
-  feelingsChartInstance = new Chart(document.getElementById("feelingsChart"), {
-    type: "bar",
-    textStyle: { color: '#FFFFFF' },
+feelingsChartInstance = new Chart(document.getElementById("feelingsChart"), {
+  type: "bar",
+  data: {
+    labels: days,
+    datasets: datasets
+  },
+  options: {
+    responsive: true,
     backgroundColor: 'transparent',
-    data: {
-      labels: days,
-      datasets: datasets
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { position: "bottom",
-                  color: '#FFFFFF' 
-                }
+
+    plugins: {
+      legend: {
+        position: "bottom",
+        labels: {
+          color: '#FFFFFF'   // ← legend text color
+        }
       },
-      scales: {
-        x: { stacked: true },
-        y: {
-          stacked: true,
-          beginAtZero: true,
-          max: 100,
-          title: {
-            display: true,
-            text: "Percentage (%)"
-          }
+      title: {
+        display: true,      // or true if you want a title
+        color: '#FFFFFF'
+      }
+    },
+
+    scales: {
+      x: {
+        stacked: true,
+        ticks: {
+          color: '#FFFFFF'   // ← x‑axis labels
+        }
+      },
+      y: {
+        stacked: true,
+        beginAtZero: true,
+        max: 100,
+        ticks: {
+          color: '#FFFFFF'   // ← y‑axis labels
+        },
+        title: {
+          display: true,
+          text: "Percentage (%)",
+          color: '#FFFFFF'   // ← y‑axis title
         }
       }
     }
-  });
+  }
+});
 }
 
 
