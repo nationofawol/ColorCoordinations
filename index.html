@@ -288,6 +288,7 @@ function buildBarChart() {
       labels: days,
       datasets: datasets
     },
+    textStyle: { color: '#FFFFFF' },
     backgroundColor: 'transparent',
     options: {
       responsive: true,
@@ -389,6 +390,7 @@ function buildFeelingsChart() {
 
   feelingsChartInstance = new Chart(document.getElementById("feelingsChart"), {
     type: "bar",
+    textStyle: { color: '#FFFFFF' },
     backgroundColor: 'transparent',
     data: {
       labels: days,
