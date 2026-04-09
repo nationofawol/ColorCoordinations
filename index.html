@@ -273,6 +273,7 @@ function buildBarChart() {
   const datasets = Object.keys(allColors).map(color => ({
     label: color,
     data: allColors[color],
+    textStyle: { color: '#FFFFFF' },
     backgroundColor: getColorFromMap(color),
     borderColor: color === "White" ? "#000" : "transparent",
     borderWidth: color === "White" ? 1 : 0
@@ -380,7 +381,8 @@ function buildFeelingsChart() {
 
   const datasets = Object.keys(allFeelings).map(f => ({
     label: f,
-    data: allFeelings[f],
+    data: allFeelings[f
+    textStyle: { color: '#FFFFFF' },
     backgroundColor: feelingMap[f] || "#888",
     borderColor: f === "Secure" ? "#000" : "transparent", // optional for contrast
     borderWidth: f === "Secure" ? 1 : 0
